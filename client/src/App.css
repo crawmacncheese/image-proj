@@ -30,9 +30,18 @@
 .app {
 
   margin: 20px 60px
-}
+} 
 
 img {
   object-fit: contain;
+}
+
+#move1 {
+  position: absolute;
+  pointer-events: nones;
+}
+#move2 {
+  position: absolute;
+  pointer-events: nones;
 }
 
