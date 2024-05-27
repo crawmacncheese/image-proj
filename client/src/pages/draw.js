@@ -8,7 +8,8 @@ function Draw() {
     const [rect, setRect] = useState([]);
     const [drawing, setDrawing] = useState(false);
     const [coor, setCoor] = useState({x: 0, y: 0});
-
+    const [labelel, setLabelel] = useState([]);
+    const [coord, setCoord] = useState([]);
     const ctx = useRef(null);
 
     const [counter, setCounter] = useState(0);
@@ -22,9 +23,6 @@ function Draw() {
         setDrawing(true);
         var {clientX, clientY} = e;
         setCounter(counter + 1);
-        const move = document.getElementById("move1");
-        move.style.left = `${clientX}px`;
-        move.style.top = `${clientY}px`;
         const canvas = document.getElementById("mycanvas");
         var offset = canvas.getBoundingClientRect();
         if(brush) {
@@ -32,11 +30,10 @@ function Draw() {
         } else {
             setElements({x1: clientX - (offset.left), y1:clientY - (offset.top)});
         }
-
-        const move1 = document.getElementById("move1");
-        move1.style.left = `${clientX - offset.left}px`;
-        move1.style.top = `${clientY - offset.top}px`;
-        setMove1(clientX + "," + clientY); 
+        if(showcoor) {
+            ctx.current.font = "15px Arial";
+            ctx.current.fillText(`${clientX-offset.left}, ${clientY-offset.top}`,clientX-offset.left, clientY-offset.top);
+        }
     
     }
     const handleMouseUp = (e) => {
@@ -46,8 +43,32 @@ function Draw() {
         } else {
             setRect([...rect, elements]);
         }
-        setMove1("");
-        setMove2("");
+        const canvas = document.getElementById("mycanvas");
+        var offset = canvas.getBoundingClientRect();
+        if(brush) {
+            var {x12,y12, x2, y2} = elements2;
+            setCoord([...coord, {x1: x12, y1: y12, x2, y2}]);
+            x12 += offset.left;
+            x2 += offset.left;
+            y12 += offset.top;
+            y2 += offset.top;
+            var xaxis = (x2+x12)/2;
+            var yaxis = (y2+y12)/2;
+        } else {
+            var {x1,y1, x2: x2n, y2: y2n} = elements;
+            setCoord([...coord, {x1, y1, x2: x2n, y2: y2n}]);
+            x1 += offset.left;
+            x2n += offset.left;
+            y1 += offset.top;
+            xaxis = (x2n+x1)/2;
+            yaxis = y1
+        }
+
+        if(selectedLabel !== "") {
+            setLabelel([...labelel, {id: counter, value: selectedLabel, x: xaxis - offset.left, y: yaxis - offset.top}]);
+            ctx.current.font = "15px Arial";
+            ctx.current.fillText(selectedLabel,xaxis-offset.left,yaxis-offset.top);
+        }
     }
     const handleMouseMove = (e) => {
         const canvas = document.getElementById("mycanvas");
@@ -61,17 +82,11 @@ function Draw() {
         if(brush) {
             var {x12,y12} = elements2;
             const newel = {x12,y12,x2: clientX - (offset.left),y2: clientY - (offset.top), z: counter};
-            ctx.current.clearRect(0,0,800,800);
+            ctx.current.clearRect(0,0,canvas.width,canvas.height);
             setElements2(newel);
             if(img) {
-                var hr = canvas.width / img.width;
-                var vr = canvas.height / img.height;
-                var ratio = Math.min(hr,vr);
-                var cx = (canvas.width - img.width*ratio)/2;
-                var cy = (canvas.height - img.height*ratio)/2;
-                ctx.current.drawImage(img,0,0,img.width,img.height,cx,cy,img.width*ratio,img.height*ratio);
-                
-            } 
+                ctx.current.drawImage(img,0,0,img.width,img.height,0,0,img.width,img.height);
+            }
             [...line, newel].forEach(line => {
                 ctx.current.beginPath();
                 ctx.current.moveTo(line.x12,line.y12);
@@ -84,15 +99,10 @@ function Draw() {
         } else {
             var {x1,y1} = elements;
             const newel = {x1,y1,x2: clientX - (offset.left),y2: clientY - (offset.top), z: counter};
-            ctx.current.clearRect(0,0,800,800);
+            ctx.current.clearRect(0,0,canvas.width,canvas.height);
             setElements(newel);
             if(img) {
-                hr = canvas.width / img.width;
-                vr = canvas.height / img.height;
-                ratio = Math.min(hr,vr);
-                cx = (canvas.width - img.width*ratio)/2;
-                cy = (canvas.height - img.height*ratio)/2;
-                ctx.current.drawImage(img,0,0,img.width,img.height,cx,cy,img.width*ratio,img.height*ratio);
+                ctx.current.drawImage(img,0,0,img.width,img.height,0,0,img.width,img.height);
             }
             [...rect, newel].forEach(rect => {
                 ctx.current.strokeRect(rect.x1,rect.y1,rect.x2-rect.x1,rect.y2-rect.y1);
@@ -104,42 +114,55 @@ function Draw() {
                 ctx.current.stroke();
             });
         }
-        const move = document.getElementById("move2");
-        move.style.left = `${clientX - offset.left}px`;
-        move.style.top = `${clientY - offset.top}px`;
-        setMove2(clientX + "," + clientY);
+        if(showcoor) {
+            ctx.current.font = "15px Arial";
+            ctx.current.fillText(`${clientX-offset.left}, ${clientY-offset.top}`,clientX-offset.left, clientY-offset.top);
+            if(brush) {
+                ctx.current.fillText(`${x12}, ${y12}`, x12, y12);
+            } else {
+                ctx.current.fillText(`${x1}, ${y1}`, x1, y1);
+            }
+            [...coord].forEach(coord => {
+                ctx.current.fillText(`${coord.x1}, ${coord.y1}`, coord.x1, coord.y1);
+                ctx.current.fillText(`${coord.x2}, ${coord.y2}`, coord.x2, coord.y2);
+            })
+        }
+        [...labelel].forEach(label => {
+            ctx.current.font = "15px Arial";
+            ctx.current.fillText(label.value, label.x, label.y);
+        })
     }
+
+    let [imgname, setImgname] = useState(null);
 
     let [img, setImg] = useState(null);
     const handleClick = (res) => {
         const canvas = document.getElementById("mycanvas");
+        const outside = document.getElementById("outside");
         var file = res.target.files[0];
+        setImgname(res.target.files[0].name);
         var img = new Image();
         img.onload = function() {
-            var hr = canvas.width / img.width;
-            var vr = canvas.height / img.height;
-            var ratio = Math.min(hr,vr);
-            var cx = (canvas.width - img.width*ratio)/2;
-            var cy = (canvas.height - img.height*ratio)/2;
-            ctx.current.clearRect(0,0,800,800);
-            ctx.current.drawImage(img,0,0,img.width,img.height,cx,cy,img.width*ratio,img.height*ratio);
-            [...rect].forEach(rect => {
-                ctx.current.strokeRect(rect.x1,rect.y1,rect.x2-rect.x1,rect.y2-rect.y1);
-            });
-            [...line].forEach(line => {
-                ctx.current.beginPath();
-                ctx.current.moveTo(line.x12,line.y12);
-                ctx.current.lineTo(line.x2,line.y2);
-                ctx.current.stroke();
-            });
+            outside.style.height = `${img.height}px`;
+            outside.style.width = `${img.width}px`;
+            canvas.height = img.height;
+            canvas.width = img.width;
+            ctx.current.clearRect(0,0,canvas.width,canvas.height);
+            ctx.current.drawImage(img,0,0,img.width,img.height,0,0,img.width,img.height);
+            setCounter(0);
+            setRect([]);
+            setLine([]);
+            setLabelel([]);
+            setCoord([]);
             setImg(img);
         }
         img.src = URL.createObjectURL(file);
     }
 
     const remove = () => {
+        const canvas = document.getElementById("mycanvas");
         setImg(null);
-        ctx.current.clearRect(0,0,800,800);
+        ctx.current.clearRect(0,0,canvas.width,canvas.height);
         [...rect].forEach(rect => {
             ctx.current.strokeRect(rect.x1,rect.y1,rect.x2-rect.x1,rect.y2-rect.y1);
         });
@@ -149,21 +172,31 @@ function Draw() {
             ctx.current.lineTo(line.x2,line.y2);
             ctx.current.stroke();
         });
+        if(showcoor) {
+            [...coord].forEach(coord => {
+                ctx.current.fillText(`${coord.x1}, ${coord.y1}`, coord.x1, coord.y1);
+                ctx.current.fillText(`${coord.x2}, ${coord.y2}`, coord.x2, coord.y2);
+            })
+        }
+        if(showlabel) {
+            [...labelel].forEach(label => {
+                ctx.current.font = "15px Arial";
+                ctx.current.fillText(label.value, label.x, label.y);
+            })
+        }
+
     }
 
     const clearall = () => {
-        ctx.current.clearRect(0,0,800,800);
         const canvas = document.getElementById("mycanvas");
+        ctx.current.clearRect(0,0,canvas.width,canvas.height);
         setRect([]);
         setLine([]);
         setCounter(0);
+        setLabelel([]);
+        setCoord([]);
         if(img) {
-            var hr = canvas.width / img.width;
-            var vr = canvas.height / img.height;
-            var ratio = Math.min(hr,vr);
-            var cx = (canvas.width - img.width*ratio)/2;
-            var cy = (canvas.height - img.height*ratio)/2;
-            ctx.current.drawImage(img,0,0,img.width,img.height,cx,cy,img.width*ratio,img.height*ratio);
+            ctx.current.drawImage(img,0,0,img.width,img.height,0,0,img.width,img.height);
         }
     }
 
@@ -174,14 +207,9 @@ function Draw() {
                 if((line[line.length -1].z > rect[rect.length -1].z)) {
                     line.pop();
                     setLine(line);
-                    ctx.current.clearRect(0,0,800,800);
+                    ctx.current.clearRect(0,0,canvas.width,canvas.height);
                     if(img) {
-                        var hr = canvas.width / img.width;
-                        var vr = canvas.height / img.height;
-                        var ratio = Math.min(hr,vr);
-                        var cx = (canvas.width - img.width*ratio)/2;
-                        var cy = (canvas.height - img.height*ratio)/2;
-                        ctx.current.drawImage(img,0,0,img.width,img.height,cx,cy,img.width*ratio,img.height*ratio);
+                        ctx.current.drawImage(img,0,0,img.width,img.height,0,0,img.width,img.height);
                     }
                     [...rect].forEach(rect => {
                         ctx.current.strokeRect(rect.x1,rect.y1,rect.x2-rect.x1,rect.y2-rect.y1);
@@ -195,14 +223,9 @@ function Draw() {
                 } else {
                     rect.pop();
                     setRect(rect);
-                    ctx.current.clearRect(0,0,800,800);
+                    ctx.current.clearRect(0,0,canvas.width,canvas.height);
                     if(img) {
-                        hr = canvas.width / img.width;
-                        vr = canvas.height / img.height;
-                        ratio = Math.min(hr,vr);
-                        cx = (canvas.width - img.width*ratio)/2;
-                        cy = (canvas.height - img.height*ratio)/2;
-                        ctx.current.drawImage(img,0,0,img.width,img.height,cx,cy,img.width*ratio,img.height*ratio);
+                        ctx.current.drawImage(img,0,0,img.width,img.height,0,0,img.width,img.height);
                     }
                     [...rect].forEach(rect => {
                         ctx.current.strokeRect(rect.x1,rect.y1,rect.x2-rect.x1,rect.y2-rect.y1);
@@ -218,14 +241,9 @@ function Draw() {
             } else if(line.length > 0) {
                 line.pop();
                     setLine(line);
-                    ctx.current.clearRect(0,0,800,800);
+                    ctx.current.clearRect(0,0,canvas.width,canvas.height);
                     if(img) {
-                        hr = canvas.width / img.width;
-                        vr = canvas.height / img.height;
-                        ratio = Math.min(hr,vr);
-                        cx = (canvas.width - img.width*ratio)/2;
-                        cy = (canvas.height - img.height*ratio)/2;
-                        ctx.current.drawImage(img,0,0,img.width,img.height,cx,cy,img.width*ratio,img.height*ratio);
+                        ctx.current.drawImage(img,0,0,img.width,img.height,0,0,img.width,img.height);
                     }
                     [...rect].forEach(rect => {
                         ctx.current.strokeRect(rect.x1,rect.y1,rect.x2-rect.x1,rect.y2-rect.y1);
@@ -239,14 +257,9 @@ function Draw() {
             } else if(rect.length > 0) {
                 rect.pop();
                     setRect(rect);
-                    ctx.current.clearRect(0,0,800,800);
+                    ctx.current.clearRect(0,0,canvas.width,canvas.height);
                     if(img) {
-                        hr = canvas.width / img.width;
-                        vr = canvas.height / img.height;
-                        ratio = Math.min(hr,vr);
-                        cx = (canvas.width - img.width*ratio)/2;
-                        cy = (canvas.height - img.height*ratio)/2;
-                        ctx.current.drawImage(img,0,0,img.width,img.height,cx,cy,img.width*ratio,img.height*ratio);
+                        ctx.current.drawImage(img,0,0,img.width,img.height,0,0,img.width,img.height);
                     }
                     [...rect].forEach(rect => {
                         ctx.current.strokeRect(rect.x1,rect.y1,rect.x2-rect.x1,rect.y2-rect.y1);
@@ -259,6 +272,25 @@ function Draw() {
                     });
             }
             setCounter(counter - 1);
+            var curlabel = labelel;
+            curlabel.pop();
+            setLabelel(curlabel);
+            if(showlabel) {
+                [...labelel].forEach(label => {
+                    ctx.current.font = "15px Arial";
+                    ctx.current.fillText(label.value, label.x, label.y);
+                })
+            }
+            var coorcur = coord;
+            coorcur.pop();
+            setCoord(coorcur);
+            if(showcoor) {
+                [...coord].forEach(coord => {
+                    ctx.current.fillText(`${coord.x1}, ${coord.y1}`, coord.x1, coord.y1);
+                    ctx.current.fillText(`${coord.x2}, ${coord.y2}`, coord.x2, coord.y2);
+                })
+            }
+            
         }
     }
 
@@ -284,41 +316,180 @@ function Draw() {
 
     const [showcoor, setShowcoor] = useState(true);
     const changecoor = () => {
-        var james = showcoor;
-        setShowcoor(!james);
+        if(showcoor) {
+            const canvas = document.getElementById("mycanvas");
+            ctx.current.clearRect(0,0,canvas.width,canvas.height);
+            if(img) {
+                ctx.current.drawImage(img,0,0,img.width,img.height,0,0,img.width,img.height);
+            }
+            [...rect].forEach(rect => {
+                ctx.current.strokeRect(rect.x1,rect.y1,rect.x2-rect.x1,rect.y2-rect.y1);
+            });
+            [...line].forEach(line => {
+                ctx.current.beginPath();
+                ctx.current.moveTo(line.x12,line.y12);
+                ctx.current.lineTo(line.x2,line.y2);
+                ctx.current.stroke();
+            });
+            if(showlabel) {
+                [...labelel].forEach(label => {
+                    ctx.current.font = "15px Arial";
+                    ctx.current.fillText(label.value, label.x, label.y);
+                })
+            }
+        } else {
+            [...coord].forEach(coord => {
+                ctx.current.fillText(`${coord.x1}, ${coord.y1}`, coord.x1, coord.y1);
+                ctx.current.fillText(`${coord.x2}, ${coord.y2}`, coord.x2, coord.y2);
+            });
+        }
+        setShowcoor(!showcoor);
     }
 
-    const [move1, setMove1] = useState("");
-    const [move2, setMove2] = useState("");
+    const [label, setLabel] = useState(false);
+    const [labelcount, setLabelcount] = useState(0);
+
+    const selectRef = useRef(null);
+
+    const createlabel = () => {
+        var newlabel = prompt("Enter label name: ");
+        if(newlabel) {
+            setLabel(newlabel);
+            setLabelcount(labelcount + 1);
+        }
+    }
+
+    useEffect(() => {
+        if (label) {
+            var opt = document.createElement('option');
+            opt.id = label;
+            opt.value = label;
+            opt.innerHTML = label;
+            // Use the ref instead of getElementById
+            if (selectRef.current) {
+                selectRef.current.appendChild(opt);
+            }
+        }
+    }, [label]);
+
+    const deletelabel = () => {
+        if ((labelcount === 0) || selectedLabel === "") return;
+        // var delete = prompt("")
+        var selected = document.getElementById(selectedLabel);
+        const select = document.getElementById("select");
+        select.removeChild(selected);
+        if(labelcount-1 === 0) {
+            setLabel(false);
+            setSelectedLabel("");
+        }
+        setLabelcount(labelcount - 1);
+    }
+
+    const [selectedLabel, setSelectedLabel] = useState("");
+
+    const handleLabelChange = (e) => {
+        if (e.target.value === selectedLabel) {
+            setSelectedLabel("");
+        } else {
+            setSelectedLabel(e.target.value);
+        }
+    }
+
+    const [showlabel, setShowlabel] = useState(true);
+
+    const changelabel = () => {
+        if(showlabel) {
+            const canvas = document.getElementById("mycanvas");
+            ctx.current.clearRect(0,0,canvas.width,canvas.height);
+            if(img) {
+                ctx.current.drawImage(img,0,0,img.width,img.height,0,0,img.width,img.height);
+            }
+            [...rect].forEach(rect => {
+                ctx.current.strokeRect(rect.x1,rect.y1,rect.x2-rect.x1,rect.y2-rect.y1);
+            });
+            [...line].forEach(line => {
+                ctx.current.beginPath();
+                ctx.current.moveTo(line.x12,line.y12);
+                ctx.current.lineTo(line.x2,line.y2);
+                ctx.current.stroke();
+            });
+            if(showcoor) {
+                [...coord].forEach(coord => {
+                    ctx.current.fillText(`${coord.x1}, ${coord.y1}`, coord.x1, coord.y1);
+                    ctx.current.fillText(`${coord.x2}, ${coord.y2}`, coord.x2, coord.y2);
+                });
+            }
+        } else {
+            [...labelel].forEach(label => {
+                ctx.current.font = "15px Arial";
+                ctx.current.fillText(label.value, label.x, label.y);
+            })
+        }
+        setShowlabel(!showlabel);
+    }
+
+    const downloadjson = () => {
+
+        var json = {
+            "image": imgname,
+            "line": line,
+            "rectangle": rect,
+            "coordinates": coord,
+            "label": labelel
+        }
+
+        var blob = new Blob([JSON.stringify(json)], {type: "text/plain"});
+        var link = document.createElement('a');
+        link.download = 'export.JSON';
+        link.href = URL.createObjectURL(blob);
+        link.click();
+    }
 
 
     return(
         <div>
-            <form action="/action_page.php">
-                    <label for="myfile">Upload an image:  </label>
-                    <input type="file" onChange={handleClick}/>
-            </form>
-            <div>
-                <button class="btn btn-danger btn-sm" disabled={brush} onClick={setBrushTrue}>Line</button>
-                <button class="btn btn-danger btn-sm" disabled={!brush} onClick={setBrushFalse}>Rectangle</button>
-                <button class="btn btn-outline-primary btn-sm" onClick={changecoor}>{showcoor ? "Hide Coordinates" : "Show Coordinates"}</button>
-            </div>
-            <div>
-                <button class="btn btn-outline-primary btn-sm" onClick={clearall}>
-                    Clear All
-                </button>
-                <button class="btn btn-outline-primary btn-sm"onClick={undo}>
-                    Undo
-                </button>
-                <button class="btn btn-outline-primary btn-sm" onClick={remove}>Remove Image</button>
+            <div class="menuflex">
+                <div>
+                    <form action="/action_page.php">
+                            <label for="myfile">Upload an image:  </label>
+                            <input type="file" onChange={handleClick}/>
+                    </form>
+                    <div>
+                        <button class="btn btn-danger btn-sm" disabled={brush} onClick={setBrushTrue}>Line</button>
+                        <button class="btn btn-danger btn-sm" disabled={!brush} onClick={setBrushFalse}>Rectangle</button>
+                        
+                    </div>
+                    <div>
+                        <button class="btn btn-outline-primary btn-sm" onClick={changecoor}>{showcoor ? "Hide Coordinates" : "Show Coordinates"}</button>
+                        <button class="btn btn-outline-primary btn-sm" onClick={changelabel}>{showlabel ? "Hide Labels" : "Show Labels"}</button>
+                    </div>
+                    <div>
+                        <button class="btn btn-outline-primary btn-sm" onClick={clearall}>
+                            Clear All
+                        </button>
+                        <button class="btn btn-outline-primary btn-sm"onClick={undo}>
+                            Undo
+                        </button>
+                        <button class="btn btn-outline-primary btn-sm" onClick={remove}>Remove Image</button>
 
+                    </div>
+                    <button class="btn btn-outline-success btn-sm" onClick={download}>Download Canvas</button>
+                    <button class="btn btn-outline-success btn-sm" onClick={downloadjson}>Download JSON</button>
+                    <h2>{coor.x},{coor.y}</h2>
+                </div>
+                <div>
+                    <h2 style={{fontWeight: "bold", fontSize: "18px"}}>Select/Create a label:</h2>
+                    <button onClick={createlabel} class="btn btn-primary btn-sm">Create new label</button>
+                    <button onClick={deletelabel} id="delete" class="btn btn-primary btn-sm">Delete label</button>
+                    <div class="menu">
+                        {(label === false) ? <h1>You dont have any labels</h1> : <select select ref={selectRef} onChange={handleLabelChange} id="select" size="5">
+                                        {/* <option onChange={handleLabelChange}>JAMES</option> */}
+                                    </select> }
+                    </div>
+                </div>
             </div>
-            <button class="btn btn-outline-success btn-sm" onClick={download}>Download Canvas</button>
-            <h2>{coor.x},{coor.y}</h2>
-            <div class="outside">
+            <div id="outside">
                 <div class="inside">
-                    {showcoor && <div id="move1">{move1}</div>}
-                    {showcoor && <div id="move2">{move2}</div>}
                     <canvas id="mycanvas" class="covering" 
                             width= "800px"
                             height= "800px"
