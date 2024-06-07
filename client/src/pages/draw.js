@@ -17,6 +17,8 @@ function Draw() {
     useEffect(() => {
         const canvas = document.getElementById("mycanvas");
         ctx.current = canvas.getContext("2d");
+        ctx.current.strokeStyle = "red";
+        ctx.current.fillStyle = "red";
       }, []);
       
     const handleMouseDown = (e) => {
@@ -81,7 +83,7 @@ function Draw() {
         setCoor({x:e.clientX - offset.left, y: e.clientY - offset.top});
         if(brush) {
             var {x12,y12} = elements2;
-            const newel = {x12,y12,x2: clientX - (offset.left),y2: clientY - (offset.top), z: counter};
+            const newel = {x12,y12,x2: clientX - (offset.left),y2: clientY - (offset.top), id: counter, label: selectedLabel};
             ctx.current.clearRect(0,0,canvas.width,canvas.height);
             setElements2(newel);
             if(img) {
@@ -98,7 +100,7 @@ function Draw() {
             });
         } else {
             var {x1,y1} = elements;
-            const newel = {x1,y1,x2: clientX - (offset.left),y2: clientY - (offset.top), z: counter};
+            const newel = {x1,y1,x2: clientX - (offset.left),y2: clientY - (offset.top), id: counter, label: selectedLabel};
             ctx.current.clearRect(0,0,canvas.width,canvas.height);
             setElements(newel);
             if(img) {
@@ -157,6 +159,20 @@ function Draw() {
             setImg(img);
         }
         img.src = URL.createObjectURL(file);
+        var formData = new FormData();
+        formData.append('file', file);
+        fetch('http://127.0.0.1:5000/upload_and_replace', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.text())
+        .then(data => {
+            console.log(data);
+        })
+        .catch((error) => {
+            console.error('Error:', error);
+        });
+
     }
 
     const remove = () => {
@@ -204,7 +220,7 @@ function Draw() {
         if(counter > 0) {
             const canvas = document.getElementById("mycanvas");
             if(line.length > 0 && rect.length > 0) {
-                if((line[line.length -1].z > rect[rect.length -1].z)) {
+                if((line[line.length -1].id > rect[rect.length -1].id)) {
                     line.pop();
                     setLine(line);
                     ctx.current.clearRect(0,0,canvas.width,canvas.height);
@@ -445,6 +461,74 @@ function Draw() {
         link.click();
     }
 
+    const updateimg = (images) => {
+        var formData = new FormData();
+        var file = new File([images], "imageName.png");
+        formData.append('file', file);
+        fetch('http://127.0.0.1:5000/upload_and_replace', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.text())
+        .then(data => {
+            console.log(data);
+        })
+        .catch((error) => {
+            console.error('Error:', error);
+        });
+    }
+
+    const fetchdata = () => {
+        var json = {
+            "image": imgname,
+            "line": line,
+            "rectangle": rect,
+            "coordinates": coord,
+            "label": labelel
+        }
+        fetch('http://127.0.0.1:5000/replace_json', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(json),
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log('Success:', data);
+        })
+        .catch((error) => {
+            console.error('Error:', error);
+        });
+
+        fetch('http://127.0.0.1:5000/run_script')
+        .then(response => response.blob())
+        .then(
+            images => {
+            let url = URL.createObjectURL(images);
+            const canvas = document.getElementById("mycanvas");
+            const outside = document.getElementById("outside");
+            var img = new Image();
+            img.onload = function() {
+                outside.style.height = `${img.height}px`;
+                outside.style.width = `${img.width}px`;
+                canvas.height = img.height;
+                canvas.width = img.width;
+                ctx.current.clearRect(0,0,canvas.width,canvas.height);
+                ctx.current.drawImage(img,0,0,img.width,img.height,0,0,img.width,img.height);
+                setCounter(0);
+                setRect([]);
+                setLine([]);
+                setLabelel([]);
+                setCoord([]);
+                setImg(img);
+                updateimg(images);
+            }
+            img.src = url;
+            
+        });
+    }
+
 
     return(
         <div>
@@ -475,6 +559,7 @@ function Draw() {
                     </div>
                     <button class="btn btn-outline-success btn-sm" onClick={download}>Download Canvas</button>
                     <button class="btn btn-outline-success btn-sm" onClick={downloadjson}>Download JSON</button>
+                    <button class="btn btn-outline-success btn-sm" onClick={fetchdata}>Identify Elements</button>
                     <h2>{coor.x},{coor.y}</h2>
                 </div>
                 <div>
