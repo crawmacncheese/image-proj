@@ -608,6 +608,16 @@ function Draw() {
                     ctx.current.fillText(`${coord.x2}, ${coord.y2}`, coord.x2, coord.y2);
                 });
             }
+            Object.entries(bbox).forEach(([key,value]) => {
+                [...value].forEach(rect => {
+                    ctx.current.strokeRect(rect[1],rect[0],rect[3]-rect[1],rect[2]-rect[0]);
+                    var rectX = (rect[1]+rect[3])/2;
+                    ctx.current.font = "15px Arial";
+                    ctx.current.fillText(rect[4],rectX,rect[0]);
+                    ctx.current.fillText(key,rect[3],rect[2]);
+                })
+            })
+
         } else {
             [...labelel].forEach(label => {
                 ctx.current.font = "15px Arial";
@@ -975,6 +985,7 @@ function Draw() {
 
     const toggleaddglobal = () => {
         setAddglobal(!addglobal);
+        
      }
 
 
@@ -1027,7 +1038,6 @@ function Draw() {
                         <button onClick={createglobal} class="btn btn-primary btn-sm">Create new label</button>
                         <button onClick={deleteglobal} id="delete" class="btn btn-primary btn-sm">Delete label</button>
                         <button onClick={toggleaddglobal} id="delete" class="btn btn-primary btn-sm">{addglobal ? "Remove tag" : "Add tag"}</button>
-                        <button onClick={toggleGloballabel} class="btn btn-primary btn-sm">{showglobal ? "Hide labels" : "Show labels"}</button>
                         <div class="menu">
                             {(globalselect === false) ? <h1>You dont have any labels</h1> : <select ref={selectglobalRef} onChange={handleglobalchange} id="selectglobal" size="5">
                                         </select> }
