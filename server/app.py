@@ -2,7 +2,7 @@ import os
 import shutil
 import sys
 from flask import send_from_directory
-from flask import Flask, request, send_file, jsonify
+from flask import Flask, request, send_file, jsonify, make_response
 import subprocess
 from werkzeug.utils import secure_filename
 import json
@@ -25,8 +25,23 @@ def serve(path):
 @app.route('/run_script')
 def run_script():
     
+    
     subprocess.call(["python3", "amsnet_1_1.py"])
     return send_file("components/export_20240510/0/0_cpnt.jpg",mimetype='image/png')
+
+@app.route('/get_bbox', methods=['GET'])
+def get_bbox():
+    return send_file("components/export_20240510/0/0_bbox.json",mimetype='application/json')
+
+@app.route('/refresh_json', methods=['GET'])
+def refresh_json():
+    emptydata = {}
+    file_path = os.path.join("components/export_20240510/0/", '0_bbox.JSON')
+    
+    with open(file_path, 'w') as f:
+        json.dump(emptydata, f)
+    
+    return 'JSON file refreshed successfully!'
 
     
 @app.route('/upload_and_replace', methods=['POST'])
@@ -38,6 +53,8 @@ def upload_and_replace():
     
     old_file_path = os.path.join('components', 'testimg.png')
     new_file_path = os.path.join('components', filename)
+    
+    
     
     if os.path.exists(old_file_path):
         os.remove(old_file_path)
@@ -56,3 +73,39 @@ def replace_json():
         json.dump(data, f)
     
     return jsonify({'message': 'JSON file replaced successfully'}), 200
+
+@app.route('/get_img_labels', methods=['GET'])
+def get_img_labels():
+    folder_path = os.path.join("components", 'part_img')
+    imagenames = os.listdir(folder_path)
+    return jsonify(imagenames)
+
+@app.route('/delete_img', methods=['POST'])
+def delete_img():
+    data = request.get_json()
+    file_path = os.path.join("components", 'part_img', data["name"])
+    os.remove(file_path)
+    jsonpath = os.path.join("components/export_20240510/0/", '0_bbox.JSON')
+    with open(jsonpath, 'r', encoding='utf-8') as json_file:
+        prevjson = json.load(json_file)
+
+    specific_string = data["label"]
+
+    if specific_string in prevjson:
+        del prevjson[specific_string]
+
+    with open(jsonpath, 'w', encoding='utf-8') as json_file:
+        json.dump(prevjson, json_file)
+    
+    
+    return send_file("components/export_20240510/0/0_bbox.json",mimetype='application/json')
+
+@app.route('/get_netlist', methods=['GET'])
+def get_netlist():
+    try:
+        with open('components/export_20240510/0/0.cir', 'r') as file:
+            data = file.read()
+            print(data)
+        return jsonify({'file_content': data})
+    except Exception as e:
+        return str(e)

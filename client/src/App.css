@@ -23,7 +23,7 @@
 #outside {
   width:800px;
   height: 800px;
-  margin: 20px 0px;
+  margin: 40px 0px;
   border: 2px solid blue;
 }
 
@@ -46,6 +46,12 @@
   flex-direction: row;
 }
 
+.overallflex {
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+}
+
 .menu {
   width: 400px; 
   height: 100px; 
@@ -57,6 +63,28 @@
   height: 100%;
 }
 
+#selectglobal {
+  width: 100%;
+  height: 100%;
+}
+
 h1 {
   z-index: 1;
+}
+
+#canvascontainer {
+  width: 800px;
+  height: 800px;
+  margin-top: 20px;
+  position: relative;
+  text-align: center;
+}
+
+#globallabel {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 1.5rem;
+  font-weight: bold;
 }

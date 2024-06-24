@@ -644,62 +644,6 @@ for i in data['rectangle']:
   print(i)
   crop_part(f'{page_bin_path}/0.npy', i["y1"], i["x1"], i["y2"], i["x2"], save_fn=i["label"])
 
-# crop_part(f'{page_bin_path}/0.npy', 82, 250, 112, 280, save_fn=f'net-white_0010_0')
-# crop_part(f'{page_bin_path}/0.npy', 183, 206, 250, 268, save_fn=f'nmos_0_0')
-# crop_part(f'{page_bin_path}/0.npy', 312, 246, 351, 284, save_fn=f'gnd_0_0')
-# crop_part(f'{page_bin_path}/0.npy', 260, 84, 349, 167, save_fn=f'voltage_0_0', rotate=False)
-# crop_part(f'{page_bin_path}/1.npy', 110, 121, 200, 202, save_fn=f'voltage_0_1', rotate=False)
-# crop_part(f'{page_bin_path}/1.npy', 220, 247, 289, 311, save_fn=f'pmos_0_0')
-# crop_part(f'{page_bin_path}/2.npy', 200, 150, 260, 216, save_fn=f'nmos_90_1')
-# crop_part(f'{page_bin_path}/3.npy', 310, 221, 397, 297, save_fn=f'voltage_0_2', rotate=False)
-# crop_part(f'{page_bin_path}/3.npy', 310, 221, 397, 297, save_fn=f'voltage_0_2', rotate=False)
-# crop_part(f'{page_bin_path}/4.npy', 255, 347, 286, 378, save_fn=f'net-black_0001_0')
-# crop_part(f'{page_bin_path}/5.npy', 177, 212, 252, 283, save_fn=f'nmos_0_2')
-# crop_part(f'{page_bin_path}/5.npy', 284, 256, 328, 299, save_fn=f'gnd_0_1')
-# crop_part(f'{page_bin_path}/5.npy', 108, 264, 155, 292, save_fn=f'current_0_0')
-# crop_part(f'{page_bin_path}/6.npy', 178, 113, 249, 185, save_fn=f'current-arrow_0_0')
-# crop_part(f'{page_bin_path}/6.npy', 33, 133, 65, 165, save_fn=f'net-white_0010_1')
-# crop_part(f'{page_bin_path}/7.npy', 60, 229, 95, 295, save_fn=f'vdd_0_0', rotate=False)
-# crop_part(f'{page_bin_path}/7.npy', 124, 197, 198, 266, save_fn=f'pmos_0_1')
-# crop_part(f'{page_bin_path}/10.npy', 335, 110, 435, 200, save_fn=f'voltage_0_3', rotate=False)
-# crop_part(f'{page_bin_path}/11.npy',216, 181, 247, 212, save_fn=f'net-black_0100_1')
-# crop_part(f'{page_bin_path}/12.npy', 383, 277, 452, 345, save_fn=f'current-arrow_0_1')
-# crop_part(f'{page_bin_path}/13.npy', 323, 257, 353, 287, save_fn=f'net-black_1110_2')
-# crop_part(f'{page_bin_path}/14.npy', 234, 403, 264, 433, save_fn=f'net-black_1111_3', rotate=False)
-# crop_part(f'{page_bin_path}/14.npy', 217, 295, 283, 332, save_fn=f'capacitor_90_0')
-# crop_part(f'{page_bin_path}/14.npy', 330, 180, 360, 210, save_fn=f'net-black_0111_4')
-# crop_part(f'{page_bin_path}/15.npy', 112, 303, 142, 333, save_fn=f'net-black_1101_5')
-# crop_part(f'{page_bin_path}/19.npy', 70, 135, 130, 185, save_fn=f'resistor_0_0')
-# crop_part(f'{page_bin_path}/21.npy', 394, 155, 430, 216, save_fn=f'capacitor_0_1')
-# crop_part(f'{page_bin_path}/24.npy', 282, 122, 380, 220, save_fn=f'voltage_0_4', rotate=False)
-# crop_part(f'{page_bin_path}/29.npy', 470, 225, 570, 320, save_fn=f'voltage-mirror_0_5', rotate=False)
-# crop_part(f'{page_bin_path}/31.npy', 170, 342, 228, 395, save_fn=f'resistor_0_1')
-# crop_part(f'{page_bin_path}/32.npy', 343, 462, 373, 492, save_fn=f'net-black_1011_6')
-# crop_part(f'{page_bin_path}/33.npy', 265, 275, 315, 330, save_fn=f'resistor_90_2')
-# crop_part(f'{page_bin_path}/54.npy', 145, 429, 218, 500, save_fn=f'nmos_0_3')
-# crop_part(f'{page_bin_path}/58.npy', 110, 160, 162, 193, save_fn=f'current_0_1')
-# crop_part(f'{page_bin_path}/60.npy', 219, 200, 294, 271, save_fn=f'nmos-cross_0_0')
-# crop_part(f'{page_bin_path}/63.npy', 98, 544, 200, 646, save_fn=f'voltage-lines_0_0', rotate=False)
-# crop_part(f'{page_bin_path}/86.npy', 101, 490, 200, 585, save_fn=f'voltage-mirror_0_6', rotate=False)
-# crop_part(f'{page_bin_path}/117.npy', 83, 234, 134, 290, save_fn=f'resistor_90_3')
-# crop_part(f'{page_bin_path}/125.npy', 293, 243, 362, 307, save_fn=f'nmos-mirror_0_0')
-# crop_part(f'{page_bin_path}/126.npy', 20, 403, 55, 463, save_fn=f'vdd_0_1', rotate=False)
-# crop_part(f'{page_bin_path}/144.npy', 177, 112, 251, 181, save_fn=f'nmos-mirror_0_1')
-# crop_part(f'{page_bin_path}/188.npy', 125, 245, 180, 300, save_fn=f'resistor_0_4')
-# crop_part(f'{page_bin_path}/188.npy', 125, 445, 180, 500, save_fn=f'resistor_0_5')
-# crop_part(f'{page_bin_path}/188.npy', 320, 470, 388, 535, save_fn=f'nmos-mirror_0_2')
-# crop_part(f'{page_bin_path}/211.npy', 333, 239, 405, 310, save_fn=f'nmos-cross_0_1')
-# crop_part(f'{page_bin_path}/211.npy', 333, 239, 405, 310, save_fn=f'nmos-cross_0_1')
-# crop_part(f'{page_bin_path}/211.npy', 333, 545, 406, 616, save_fn=f'nmos_0_4')
-# crop_part(f'{page_bin_path}/221.npy', 120, 169, 189, 233, save_fn=f'pmos-cross_0_0')
-# crop_part(f'{page_bin_path}/234.npy', 325, 606, 394, 670, save_fn=f'nmos-mirror-cross_0_0')
-# crop_part(f'{page_bin_path}/295.npy', 591, 126, 628, 224, save_fn=f'voltage-lines_0_1', rotate=False)
-# crop_part(f'{page_bin_path}/305.npy', 60, 249, 133, 320, save_fn=f'pmos-mirror_0_0')
-# crop_part(f'{page_bin_path}/375.npy', 60, 190, 140, 300, save_fn=f'inductor_90_0')
-# crop_part(f'{page_bin_path}/375.npy', 140, 205, 200, 270, save_fn=f'resistor_90_6')
-# crop_part(f'{page_bin_path}/375.npy', 240, 38, 300, 93, save_fn=f'resistor_0_7')
-# crop_part(f'{page_bin_path}/375.npy', 355, 490, 385, 520, save_fn=f'net-white_0001_2')
-
 """# Run"""
 
 export_dir = f'{root_path}/export_20240510'
@@ -719,6 +663,19 @@ for page_id in range(0, 1):
     bin2img(page_bin).save(f'{export_dir}/{page_id}/{page_id}.jpg')
     cpnt_detect_img.save(f'{export_dir}/{page_id}/{page_id}_cpnt.jpg')
     net_detect_img.save(f'{export_dir}/{page_id}/{page_id}_net.jpg')
+    #Update json instead of replacing
+    print(page_data)
+    for key,value in page_data.items():
+      if value != []:
+        for i in value:
+          i.append([""])
+    
+    prevjson = json.load(codecs.open(f'{export_dir}/{page_id}/{page_id}_bbox.json', 'r', encoding='utf-8'))
+    for key,value in prevjson.items():
+      if key in page_data and isinstance(page_data[key],list):
+        page_data[key].extend(value)
+      else:
+        page_data[key] = value
     json.dump(page_data, codecs.open(f'{export_dir}/{page_id}/{page_id}_bbox.json', 'w', encoding='utf-8'), indent=2)
     write_strings(f'{export_dir}/{page_id}/{page_id}.cir', [netlist])
     print(netlist)
